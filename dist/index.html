@@ -1,0 +1,97 @@
+<!-- template.html - rev-4 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="609a232ab53e413e38d2.css">
+    
+    <title>To Do List App</title>
+
+<script defer src="main.js"></script></head>
+<body>
+
+<div class="container" id="container">
+
+ <!--Header for the whole page-->   
+ <div class="header" id="header">Copilot To Do List App</div>
+
+<!--Active To Do List and Items-->
+<div class="newToDoLists" id="newToDoLists">   
+
+    <!--List of To Do Lists and New To Do List Button-->
+    <div class="ToDoLists" id="ToDoLists">To Do Lists
+
+        <button class="NewList" id="NewList">New List</button>
+
+        <div class="ListofToDoLists">
+            <ul class="ListOfLists" id="ListOfLists">
+                <li>List 1</li>
+                <li>List 2</li>
+                <li>List 3</li>
+            </ul>
+        </div>
+    </div>
+     
+ </div> 
+
+
+ <!--To Do List Items and New To Do List Item Button-->
+ <div class="activeToDos" id="activeToDos">
+    <!--Active To Do Items-->
+    <p id="ActiveP"></p>
+
+
+    <div class="activeTDItemTitle" style="padding: 10px; border: 1px solid black;
+         background-color: lightyellow; color: black; font-size: 20px; position: relative; z-index: 1000;">active</div>
+   
+    
+    <div class="ActiveToDoItems" id="ActiveToDoItems">active!!!
+        <!-- Stronger inline styles to ensure visibility -->
+        
+
+        <ul id="ActiveTDItemList">
+            <li>To Do Item 1</li>
+            <li>To Do Item 2</li>
+            <li>To Do Item 3</li>
+            <li><input type="textarea" placeholder="To Do Item 4"></li>
+        </ul>
+
+    </div>
+
+    <button class="newToDo" id="newToDo">New To Do List Item</button>
+
+
+</div>
+
+</div>
+
+
+
+
+ <div class="oldToDos" id="oldToDos">
+    <div class="oldTDHeader">Done</div>
+    <ul>
+        <li>to do item 4</li>
+        <li>to do item 5</li>
+        <li>to do item 6</li>
+    </ul>
+
+ </div>
+
+
+ <div class = "completedLists" id="completedLists">
+    Completed Lists
+    <ul>
+        <li>Completed List 1</li>
+        <li>Completed List 2</li>
+        <li>Completed List 3</li>
+    </ul>
+
+ </div>
+
+
+</div>
+<script src="f5e0c916d64dc80042eb.js" type="module"></script>
+</body>
+</html>
