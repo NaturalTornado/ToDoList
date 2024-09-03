@@ -1,72 +1,94 @@
-// newToDo.js
+// newToDo.js - rev-7
 
-function setActiveList(listTitle) {
-    const activeToDos = document.getElementById('activeToDos');
-    activeToDos.innerHTML = '';  // Clear previous content
+import { ToDoItem } from './TDObject.js';
 
-    // Create the header for the active list
-    const header = document.createElement('h3');
-    header.textContent = listTitle;
-    activeToDos.appendChild(header);
-
-    // Create the list for tasks
-    const taskList = document.createElement('ul');
-    activeToDos.appendChild(taskList);
-
-    // Function to add a new task
-    function addTask(taskName) {
-        const taskItem = document.createElement('li');
-        taskItem.textContent = taskName;
-        taskList.appendChild(taskItem);
-    }
-
-    return { addTask };
+function createNewToDoItem(taskDescription = 'task description', dueDate, priority) {
+    return new ToDoItem(taskDescription, dueDate, priority);
 }
 
-export { setActiveList };
+function renderNewToDoItem(toDoItem, index, removeCallback, saveToLocalStorageCallback) {
+    const li = document.createElement('li');
 
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.checked = toDoItem.isCompleted;
+    checkbox.addEventListener('change', () => {
+        toDoItem.toggleCompletion();
+        if (typeof saveToLocalStorageCallback === 'function') {
+            saveToLocalStorageCallback();
+        }
+    });
 
-/*
-function newToDo () {
+    const taskSpan = document.createElement('span');
+    taskSpan.textContent = typeof toDoItem.taskDescription === 'string' && toDoItem.taskDescription.trim() !== '' 
+        ? toDoItem.taskDescription 
+        : 'task description'; // Correctly set default text
+    taskSpan.contentEditable = true;
+    taskSpan.addEventListener('input', (e) => {
+        toDoItem.taskDescription = e.target.textContent;
+    });
 
-//object properties:
-// - priority
-//      - can be edited if the edit button is clicked.
-//      - if changed to a higher priority it bumps all items at and below the new priority down by one. 
-//      - the priority list item should default to one, or the last item on the list. 
-// - task description
-// - edit 
-//      - stores as boolean variable. when true you can edit the priority and task description    
-// - trash button
-// - complete button
+    taskSpan.addEventListener('blur', () => {
+        if (typeof saveToLocalStorageCallback === 'function') {
+            saveToLocalStorageCallback();
+        }
+    });
 
-// properties are here:    
-    const priority = 1;
-    const taskDescription = '';
-    const completeTF = 'false';
-    const editButton = document.createElement('button');
+    // Create an input element for the due date
+    const dueDateInput = document.createElement('input');
+    dueDateInput.type = 'date';
+    dueDateInput.value = toDoItem.dueDate;
+    dueDateInput.addEventListener('change', (e) => {
+        toDoItem.dueDate = e.target.value;
+        if (typeof saveToLocalStorageCallback === 'function') {
+            saveToLocalStorageCallback();
+        }
+    });
+
+    // Create a select element for priority
+    const prioritySelect = document.createElement('select');
+    const priorities = [
+        { value: 'low', text: 'Low' },
+        { value: 'medium', text: 'Medium' },
+        { value: 'high', text: 'High' }
+    ];
+
+    priorities.forEach(priority => {
+        const option = document.createElement('option');
+        option.value = priority.value;
+        option.textContent = priority.text;
+        if (toDoItem.priority === priority.value) {
+            option.selected = true;
+        }
+        prioritySelect.appendChild(option);
+    });
+
+    prioritySelect.addEventListener('change', (e) => {
+        toDoItem.priority = e.target.value;
+        if (typeof saveToLocalStorageCallback === 'function') {
+            saveToLocalStorageCallback();
+        }
+    });
+
     const deleteButton = document.createElement('button');
-
-
-    editButton.addEventListener('click', () => {
-
-
+    deleteButton.textContent = 'Delete';
+    deleteButton.addEventListener('click', () => {
+        removeCallback(index);
+        if (typeof saveToLocalStorageCallback === 'function') {
+            saveToLocalStorageCallback();
+        }
     });
 
-    deleteButton.addEventListener('click',() => {
+    li.appendChild(checkbox);
+    li.appendChild(taskSpan);
+    li.appendChild(dueDateInput);
+    li.appendChild(prioritySelect);
+    li.appendChild(deleteButton);
+    li.style.display = 'grid';
+    li.style.gridTemplateColumns = 'auto 10fr 1fr 1fr 1fr';
 
 
-    });
-    
+    return li;
+}
 
-    const newTDBox = document.createElement('div');  
-    
-    newTDBox
-
-
-
-};
-
-*/
-
-
+export { createNewToDoItem, renderNewToDoItem };
