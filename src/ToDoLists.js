@@ -1,73 +1,42 @@
-// toDoListModule.js
+// ToDoLists.js - rev-2
 
-// Function to create a new to-do list item
-function createToDoList(title) {
-    // Create a new list item element
-    const listItem = document.createElement('li');
+import { ToDoList } from './TDObject.js';
 
-    // Set up the title span
-    const titleSpan = document.createElement('span');
-    titleSpan.textContent = title;
+class ToDoListsManager {
+    constructor() {
+        this.lists = this.loadListsFromStorage();
+        this.activeListIndex = 0; // Track the active list
+    }
 
-    // Set up the complete checkbox
-    const completeCheckbox = document.createElement('input');
-    completeCheckbox.type = 'checkbox';
-    completeCheckbox.addEventListener('change', () => {
-        // Toggle the completion state (adds/removes a 'completed' class)
-        listItem.classList.toggle('completed', completeCheckbox.checked);
-    });
+    createList(title) {
+        const newList = new ToDoList(title);
+        this.lists.push(newList);
+        this.saveListsToStorage();
+        return newList;
+    }
 
+    deleteList(index) {
+        this.lists.splice(index, 1);
+        this.saveListsToStorage();
+    }
 
-    // Set up the edit button
-    const editButton = document.createElement('button');
-    editButton.textContent = 'Edit';
-    editButton.addEventListener('click', () => {
-        // Enable direct text editing within the span
-        titleSpan.contentEditable = true;
-        titleSpan.focus();
+    setActiveList(index) {
+        this.activeListIndex = index;
+        this.saveListsToStorage();
+    }
 
-        // Save changes when the user presses Enter or blurs the input
-        titleSpan.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                titleSpan.contentEditable = false;
-            }
-        });
+    getActiveList() {
+        return this.lists[this.activeListIndex];
+    }
 
-        titleSpan.addEventListener('blur', () => {
-            titleSpan.contentEditable = false;
-        });
-    });
+    loadListsFromStorage() {
+        const storedLists = localStorage.getItem('toDoLists');
+        return storedLists ? JSON.parse(storedLists).map(list => Object.assign(new ToDoList(), list)) : [];
+    }
 
-/*
-    // Set up the edit button
-    const editButton = document.createElement('button');
-    editButton.textContent = 'Edit';
-    editButton.addEventListener('click', () => {
-        // Prompt the user for a new title
-        const newTitle = prompt('Edit the title:', titleSpan.textContent);
-        if (newTitle) {
-            titleSpan.textContent = newTitle;
-        }
-    });
-*/
-
-    // Set up the trash button
-    const trashButton = document.createElement('button');
-    trashButton.textContent = 'Delete';
-    trashButton.addEventListener('click', () => {
-        // Remove the list item
-        listItem.remove();
-    });
-
-    // Append all the elements to the list item
-    listItem.appendChild(completeCheckbox);
-    listItem.appendChild(titleSpan);
-    listItem.appendChild(editButton);
-    listItem.appendChild(trashButton);
-
-    // Return the completed list item to be appended in the DOM
-    return listItem;
+    saveListsToStorage() {
+        localStorage.setItem('toDoLists', JSON.stringify(this.lists));
+    }
 }
 
-export default createToDoList;
+export default ToDoListsManager;

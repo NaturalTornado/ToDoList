@@ -1,37 +1,120 @@
+// index.js - rev-13
 
-
-import loadPage from "./loadPage.js";
-import createToDoList from './ToDoLists.js';
-
-import { setActiveList } from './newToDo.js';
+import loadPage from './loadPage.js';
+import ToDoListsManager from './ToDoLists.js';
+import { createNewToDoItem } from './newToDo.js';
+import { displayActiveToDoList } from './activeToDo.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     loadPage();
-    const newListBtn = document.getElementById('NewList'); // Button to create a new list
-    const listOfLists = document.getElementById('ListOfLists'); // The list where new lists will be added
 
-    // Add event listener to the "New List" button
-    newListBtn.addEventListener('click', () => {
-        // Create a new to-do list item with the default title "Title"
-        const newListItem = createToDoList('Title');
+    const toDoListsManager = new ToDoListsManager();
 
-        // Make the title immediately editable by replacing the title span with an input field
-        const titleSpan = newListItem.querySelector('span');
-        const titleInput = document.createElement('input');
-        titleInput.type = 'text';
-        titleInput.value = titleSpan.textContent; // Set the input field value to the current title
-        titleSpan.replaceWith(titleInput); // Replace the span with the input field
+    const newListButton = document.getElementById('NewList');
+    const newToDoButton = document.getElementById('newToDo');
 
-        // Save the new title when the user exits the input field
-        titleInput.addEventListener('blur', () => {
-            titleSpan.textContent = titleInput.value || 'Title'; // Update the title or keep "Title" if input is empty
-            titleInput.replaceWith(titleSpan); // Replace the input field with the updated span
+    const listOfLists = document.getElementById('ListOfLists');
+    const activeTDItemTitle = document.querySelector('.activeTDItemTitle'); 
+
+    const renderLists = () => {
+        listOfLists.innerHTML = ''; 
+        toDoListsManager.lists.forEach((list, index) => {
+            const li = document.createElement('li');
+
+            const span = document.createElement('span');
+
+            const titleParagraph = document.createElement('span');
+            titleParagraph.textContent = list.title;
+            titleParagraph.contentEditable = true;
+            titleParagraph.addEventListener('input', (e) => {
+                list.title = e.target.textContent;
+                saveToLocalStorage();
+            });
+
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.addEventListener('click', (event) => {
+                event.stopPropagation(); 
+                toDoListsManager.deleteList(index);
+                renderLists();
+                renderActiveList(); 
+                saveToLocalStorage();
+            });
+
+            
+            span.style.display = 'grid';
+            span.style.gridTemplateColumns = '3fr 1fr';
+
+            span.appendChild(titleParagraph);
+            span.appendChild(deleteButton);
+            li.appendChild(span);
+            listOfLists.appendChild(li);
+            
+
+            li.addEventListener('click', () => {
+                toDoListsManager.setActiveList(index);
+                const activeTitleDiv = document.querySelector('.activeTDItemTitle');
+                if (activeTitleDiv) {
+                    activeTitleDiv.textContent = list.title;
+                }
+                renderActiveList();
+            });
+
+            if (index === toDoListsManager.activeListIndex) {
+                const activeTitleDiv = document.querySelector('.activeTDItemTitle');
+                if (activeTitleDiv) {
+                    activeTitleDiv.textContent = list.title;
+                }
+            }
         });
+    };
 
-        // Append the new list item to the list
-        listOfLists.appendChild(newListItem);
+    const renderActiveList = () => {
+        const activeList = toDoListsManager.getActiveList();
+        if (!activeList) {
+            console.error('No active list found');
+            return; 
+        }
 
-        // Focus the input field to allow immediate editing
-        titleInput.focus();
+        displayActiveToDoList(activeList, (itemIndex) => {
+            activeList.removeItem(itemIndex);
+            renderActiveList();
+            saveToLocalStorage();
+        });
+    };
+
+    newListButton.addEventListener('click', () => {
+        const newListTitle = "New List";
+        const newList = toDoListsManager.createList(newListTitle);
+
+        const activeTitleDiv = document.querySelector('.activeTDItemTitle');
+        const currentTitle = activeTitleDiv ? activeTitleDiv.textContent : '';
+        
+        renderLists();
+        toDoListsManager.setActiveList(toDoListsManager.lists.length - 1);
+        renderActiveList();
+
+        if (activeTitleDiv) {
+            activeTitleDiv.textContent = currentTitle;
+        }
     });
+
+    newToDoButton.addEventListener('click', () => {
+        const activeList = toDoListsManager.getActiveList();
+        if (!activeList) {
+            console.error('No active list found when adding a new to-do item');
+            return; 
+        }
+        const newToDoItem = createNewToDoItem({}, saveToLocalStorage);
+        activeList.addItem(newToDoItem);
+        renderActiveList();
+        saveToLocalStorage();
+    });
+
+    const saveToLocalStorage = () => {
+        toDoListsManager.saveListsToStorage();
+    };
+
+    renderLists();
+    renderActiveList();
 });
